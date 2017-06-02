@@ -14,7 +14,7 @@ def solve(speisen, kalorien, fett, kosten, minKalorien, maxFett, obst):
   xKaufen = {}
   # Variablen in Gurobi erzeugen und hinzufuegen.
   for speise in speisen:
-    xKaufen[speise] = model.addVar(obj = kosten[speise], name = ('x_' + speise))
+    xKaufen[speise] = model.addVar(ub = 8, obj = kosten[speise], name = ('x_' + speise))
 
   # Variablen bekannt machen.
   model.update()
@@ -23,7 +23,7 @@ def solve(speisen, kalorien, fett, kosten, minKalorien, maxFett, obst):
   model.addConstr(quicksum(kalorien[speise] * xKaufen[speise] for speise in speisen) >= minKalorien)
   
   # Constraint: Maximalmenge an Fett.
-  # Wurde vergessen.
+  model.addConstr(quicksum(fett[speise] * xKaufen[speise] for speise in speisen) <= maxFett)
 
   # Constraint: Ein Drittel der Gesamtmenge muss Obst sein.
   model.addConstr(1.0/3.0 * quicksum(xKaufen[speise] for speise in speisen) <= quicksum(xKaufen[speise] for speise in obst))
